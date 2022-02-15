@@ -88,14 +88,10 @@ void list<T>::push_back(T data)
 	if (Begin == nullptr)
 	{
 		Begin = new Node<T>(data);
+		End = Begin;
 	}
 	else
 	{
-		End = this->Begin;
-		while (End->pNext != nullptr)
-		{
-			End = End->pNext;
-		}
 		End->pNext = new Node<T>(data);
 		End = End->pNext;
 	}
