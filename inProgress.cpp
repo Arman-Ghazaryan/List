@@ -1,17 +1,16 @@
 #include <iostream>
-//#include <vector>
+#include <vector>
 
 using namespace std;
 
-template<typename T> class List_iterator;
-template<typename T> class Link;
-
+template<typename T>
+class List_iterator;
 
 template<typename T>
 class list
 {
 public:
-	typedef List_iterator<T> iterator;
+	typedef List_iterator<T> Iterator;
 
 	list();
 	~list();
@@ -21,7 +20,7 @@ public:
 	void push_front(T data);
 	void insert(T data, int pos);
 	void insert(T data, int count, int pos);
-	//void insert(vector<int> vec, int pos);
+	void insert(vector<int> vec, int pos);
 	////
 
 	//Removing
@@ -32,8 +31,8 @@ public:
 	////
 
 	//Geting info//
-	list<T>* begin() { return Begin; }
-	list<T>* end() { return End; }
+	Iterator* begin() const;
+	Iterator* end() const;
 	bool empty();
 	T front();
 	T back();
@@ -67,19 +66,6 @@ list<T>::~list()
 	clear();
 }
 
-template <typename T>
-class Link
-{
-private:
-	Link(const T& x) : value(x), next_link(0), prev_link(0) {}
-
-	T value;
-	Link<T>* next_link;
-	Link<T>* prev_link;
-
-	friend class list<T>; 
-	friend class List_iterator<T>;
-};
 
 template <typename T> 
 class List_iterator
@@ -87,9 +73,8 @@ class List_iterator
 public:
 	typedef List_iterator<T> Iterator;
 
-	List_iterator(Link<T>* source_link) : current_link(source_link) { }
-	List_iterator() : current_link(0) { }
-	List_iterator(List_iterator<T>* source_iterator) : current_link(source_iterator.current_link) { }
+	List_iterator(List_iterator<T>* source_iterator);
+	List_iterator() : current_iterator(0) { }
 
 	T& operator*();  // dereferencing operator
 	Iterator& operator=(const Iterator& rhs) ;
@@ -100,36 +85,11 @@ public:
 	Iterator& operator--();
 	Iterator operator--(int);
 
-protected:
-	Link<T>* current_link;
+private:
+	List_iterator<T>* current_iterator;
 
 	friend class list<T>;
 };
-
-template <typename T>
-T& List_iterator<T>::operator*()
-{
-	return current_link->value;
-}
-
-template<typename T>
-bool List_iterator<T>::operator==(const Iterator& rhs) const
-{
-	return false;
-}
-
-template<typename T>
-bool List_iterator<T>::operator!=(const Iterator& rhs) const
-{
-	return false;
-}
-
-template <typename T>
-List_iterator<T>& List_iterator<T>::operator++()
-{
-	current_link = current_link->next_link;
-	return *this;
-}
 
 
 template<typename T>
@@ -241,47 +201,47 @@ void list<T>::insert(T data, int count, int pos)
 		End = temp;
 	}
 }
-//
-//template<typename T>
-//void list<T>::insert(vector<int> vec, int pos)
-//{
-//	if (pos == 0)
-//	{
-//		for (int i = vec.size() - 1; i >= 0; i--)
-//		{
-//			push_front(vec[i]);
-//		}
-//	}
-//	if (pos == size - 1)
-//	{
-//		for (int i = 0; i < vec.size(); i++)
-//		{
-//			push_back(vec[i]);
-//		}
-//	}
-//	else
-//	{
-//		Node<T>* previous = this->Begin;
-//		Node<T>* temp = new Node<T>;
-//		Node<T>* temp1 = new Node<T>;
-//
-//		for (int i = 0; i < pos - 1; i++)
-//		{
-//			previous = previous->pNext;
-//		}
-//
-//		temp1 = previous->pNext->pNext;
-//		temp = End;
-//		End = previous->pNext;
-//
-//		for (int i = 0; i < vec.size(); i++)
-//		{
-//			push_back(vec[i]);
-//		}
-//		End->pNext = temp1;
-//		End = temp;
-//	}
-//}
+
+template<typename T>
+void list<T>::insert(vector<int> vec, int pos)
+{
+	if (pos == 0)
+	{
+		for (int i = vec.size() - 1; i >= 0; i--)
+		{
+			push_front(vec[i]);
+		}
+	}
+	if (pos == size - 1)
+	{
+		for (int i = 0; i < vec.size(); i++)
+		{
+			push_back(vec[i]);
+		}
+	}
+	else
+	{
+		Node<T>* previous = this->Begin;
+		Node<T>* temp = new Node<T>;
+		Node<T>* temp1 = new Node<T>;
+
+		for (int i = 0; i < pos - 1; i++)
+		{
+			previous = previous->pNext;
+		}
+
+		temp1 = previous->pNext->pNext;
+		temp = End;
+		End = previous->pNext;
+
+		for (int i = 0; i < vec.size(); i++)
+		{
+			push_back(vec[i]);
+		}
+		End->pNext = temp1;
+		End = temp;
+	}
+}
 
 template<typename T>
 void list<T>::clear()
@@ -312,6 +272,20 @@ void list<T>::removeAt(int pos)
 		delete to_delete;
 	}
 	size--;
+}
+
+
+
+template<typename T>
+typename list<T>::Iterator* list<T>::begin() const
+{
+	return Iterator(Begin);
+}
+
+template<typename T>
+typename list<T>::Iterator* list<T>::end() const
+{
+	return Iterator(End);
 }
 
 template<typename T>
@@ -356,10 +330,11 @@ T& list<T>::operator[](const int index)
 int main()
 {
 	list<int> lst;
-	
+	list<int>::Iterator it;
 	lst.push_back(11);
 	lst.push_back(12);
 	lst.push_back(13);
+	it = lst.begin();
 	lst.push_back(14);
 	lst.push_back(15);
 	lst.insert(17, 3);
@@ -369,4 +344,10 @@ int main()
 	lst.insert(3, 3, 2);
 //	lst.insert({ 0,1,2 }, 5);
 
+}
+
+template<typename T>
+List_iterator<T>::List_iterator(List_iterator<T>* source_iterator)
+{
+	current_iterator = source_iterator;
 }
