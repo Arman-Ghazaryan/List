@@ -3,27 +3,15 @@
 
 using namespace std;
 
+template<typename T> class List_iterator;
+
+
 template<typename T>
 class list
 {
 public:
 	list();
 	~list();
-	
-	//class iterator
-	//{
-	//public:
-	//	//iterator(const iterator&);
-	//	iterator();
-	//	~iterator();
-	//	iterator operator=(const iterator&) { return pos_; }
-	//	/*iterator operator++() { return pos_++; } 
-	//	iterator& operator++() { return ++pos_; } *///prefix increment
-	//	//reference operator*() const;
-	//};
-
-	//iterator pos_;
-
 
 	//Adding elements//
 	void push_back(T data);
@@ -43,7 +31,7 @@ public:
 	//Geting info//
 	list<T>* begin() { return Begin; }
 	list<T>* end() { return End; }
-	int empty();
+	bool empty();
 	int front();
 	int back();
 	int getSize() { return size; }
@@ -51,16 +39,10 @@ public:
 	////
 private:
 	template<typename T>
-	class Node
+	struct Node
 	{
-	public:
 		Node* pNext;
 		T data;
-		Node(T data = T(), Node *pNext = nullptr)
-		{
-			this->data = data;
-			this->pNext = pNext;
-		}
 	};
 
 	size_t size;
@@ -85,15 +67,19 @@ list<T>::~list()
 template<typename T>
 void list<T>::push_back(T data)
 {
-	if (Begin == nullptr)
+	Node<T>* temp = new Node<T>;
+	temp->data = data;
+	temp->pNext = NULL;
+	if (Begin == NULL)
 	{
-		Begin = new Node<T>(data);
-		End = Begin;
+		Begin = temp;
+		End = temp;
+		temp = NULL;
 	}
 	else
 	{
-		End->pNext = new Node<T>(data);
-		End = End->pNext;
+		End->pNext = temp;
+		End = temp;
 	}
 	size++;
 }
@@ -101,8 +87,10 @@ void list<T>::push_back(T data)
 template<typename T>
 void list<T>::push_front(T data)
 {
-	Begin = new Node<T>(data, Begin);
-	End = End->pNext;
+	Node<T>* temp = Begin;
+	Begin = new Node<T>;
+	Begin->data = data;
+	Begin->pNext = temp;
 	size++;
 }
 
@@ -113,11 +101,6 @@ void list<T>::pop_front()
 	Begin = Begin->pNext;
 	delete temp;
 	size--;
-	End = Begin;
-	for (int i = 0; i < size; i++)
-	{
-		End = End->pNext;
-	}
 }
 
 template<typename T>
@@ -129,6 +112,8 @@ void list<T>::pop_back()
 template<typename T>
 void list<T>::insert(T data, int pos)
 {
+	Node<T>* temp = new Node<T>;
+	Node<T>* temp1 = new Node<T>;
 	if (pos == 0)
 	{
 		push_front(data);
@@ -140,8 +125,10 @@ void list<T>::insert(T data, int pos)
 		{
 			previous = previous->pNext;
 		}
-		previous->pNext = new Node<T>(data, previous->pNext);
-		End = End->pNext;
+		temp1 = previous->pNext;
+		temp->data = data;
+		previous->pNext = temp;
+		temp->pNext = temp1;
 	}
 	size++;
 }
@@ -166,17 +153,24 @@ void list<T>::insert(T data, int count, int pos)
 	else
 	{
 		Node<T>* previous = this->Begin;
+		Node<T>* temp = new Node<T>;
+		Node<T>* temp1 = new Node<T>;
+
 		for (int i = 0; i < pos - 1; i++)
 		{
 			previous = previous->pNext;
 		}
 
+		temp1 = previous->pNext->pNext;
+		temp = End;
+		End = previous->pNext;
+
 		for (int i = 0; i < count; i++)
 		{
-			previous->pNext = new Node<T>(data, previous->pNext);
-			End = End->pNext;
+			push_back(data);
 		}
-		size += count;
+		End->pNext = temp1;
+		End = temp;
 	}
 }
 
@@ -200,17 +194,24 @@ void list<T>::insert(vector<int> vec, int pos)
 	else
 	{
 		Node<T>* previous = this->Begin;
+		Node<T>* temp = new Node<T>;
+		Node<T>* temp1 = new Node<T>;
+
 		for (int i = 0; i < pos - 1; i++)
 		{
 			previous = previous->pNext;
 		}
 
+		temp1 = previous->pNext->pNext;
+		temp = End;
+		End = previous->pNext;
+
 		for (int i = 0; i < vec.size(); i++)
 		{
-			previous->pNext = new Node<T>(vec[i], previous->pNext);
-			End = End->pNext;
+			push_back(vec[i]);
 		}
-		size += vec.size();
+		End->pNext = temp1;
+		End = temp;
 	}
 }
 
@@ -241,13 +242,12 @@ void list<T>::removeAt(int pos)
 		Node<T>* to_delete = previous->pNext;
 		previous->pNext = to_delete->pNext;
 		delete to_delete;
-		End = previous->pNext;
 	}
 	size--;
 }
 
 template<typename T>
-int list<T>::empty()
+bool list<T>::empty()
 {
 	if (Begin == End)
 	{
@@ -294,25 +294,11 @@ int main()
 	lst.push_back(13);
 	lst.push_back(14);
 	lst.push_back(15);
+	lst.insert(17, 3);
+	lst.push_front(7);
+	lst.pop_front();
+	lst.removeAt(3);
+	lst.insert(3, 3, 2);
+	lst.insert({ 0,1,2 }, 5);
 
-
-	
 }
-
-//template<typename T>
-//list<T>::iterator::iterator(const iterator&)
-//{
-//
-//}
-
-//template<typename T>
-//list<T>::iterator::iterator()
-//{
-//	pos_ = nullptr;
-//}
-//
-//template<typename T>
-//list<T>::iterator::~iterator()
-//{
-//
-//}
