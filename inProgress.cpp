@@ -369,7 +369,7 @@ int main()
 	lst.push_back(11);
 	lst.push_back(12);
 	lst.push_back(13);
-	it = (lst.begin());
+	it = lst.begin();
 	it++;
 	it++;
 	//it--;
